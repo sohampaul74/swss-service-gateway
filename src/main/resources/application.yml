@@ -1,0 +1,31 @@
+logging:
+  level:
+    '[org.springframework.cloud.gateway]': debug
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+spring:
+  application:
+    name: service-gateway
+  cloud:
+    gateway:
+      routes:
+      - id: auth-server-module
+        uri: lb://AUTH-SERVER
+        predicates:
+        - Path=/oauth/**
+      - id: service-discovery-module
+        uri: http://localhost:8761/
+        predicates:
+        - Path=/eureka/**
+        filters:
+        - RewritePath=/(?<segment>.*), /
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${DISCOVERY_SERVER:http://localhost:8761/eureka}
